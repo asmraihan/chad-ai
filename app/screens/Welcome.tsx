@@ -16,7 +16,7 @@ const Welcome = () => {
    <View className='flex-row justify-center '>
     <Image source={require('../../assets/images/brainckt.png')} className='w-60 h-60' />
      </View>
-     <TouchableOpacity onPress={()=> navigation.navigate('Home')} className='bg-black mx-5 p-3.5 rounded-xl' >
+     <TouchableOpacity onPress={()=> navigation.navigate("Home")} className='bg-black mx-5 p-3.5 rounded-xl' >
       <Text className='text-gray-200 font-semibold text-lg text-center'>Get Started</Text>
      </TouchableOpacity>
    </SafeAreaView>
