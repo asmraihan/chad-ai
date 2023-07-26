@@ -1,15 +1,16 @@
-import { View, Text, Image, TouchableOpacity, ScrollView, TextInput } from 'react-native'
+import { View, Text, Image, TouchableOpacity, ScrollView, TextInput, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Features from '../components/features'
 import { dummyMessages } from '../constants'
 import Voice from '@react-native-community/voice';
+import { apiCall } from '../api/openAI'
 const Home = () => {
-  const [messages, setMessages] = useState(dummyMessages)
+  const [messages, setMessages] = useState([])
   const [recording, setRecording] = useState(false)
-  const [text, setText] = useState('asd')
+  const [text, setText] = useState('')
   const [speaking, setSpeaking] = useState(false)
-
+  const [result, setResult] = useState('')
   const speechStartHandler = (e: any) => {
     console.log('speech start handler')
   }
@@ -17,9 +18,54 @@ const Home = () => {
     setRecording(false)
     console.log('speech end handler')
   }
-  const speechResultsHandler = (e: any) => {
+  const speechResultsHandler = () => {
+    console.log('tapped')
+    // setResult(text)
     setRecording(false)
-    console.log('speech result voice event', e)
+    // const text = e.value[0]
+    // fetchResponse()
+    if (text.trim().length > 0) {
+      let newMessages = [...messages]
+      newMessages.push({ role: 'user', content: text.trim() })
+      setMessages([...newMessages])
+
+      apiCall(text.trim(), newMessages).then(res => {
+        // console.log('you got data', res)
+        if (res?.success) {
+          setText('')
+          //@ts-ignore
+          setMessages([...res.data])
+          setResult('')
+        } else {
+          //@ts-ignore
+          Alert.alert('Error', res?.msg)
+        }
+      })
+
+    }
+
+  }
+
+  const fetchResponse = () => {
+    // if (result.trim().length > 0) {
+    //   let newMessages = [...messages]
+    //   newMessages.push({ role: 'user', content: result.trim() })
+    //   setMessages([...newMessages])
+
+    //   apiCall(result.trim(), newMessages).then(res => {
+    //     // console.log('you got data', res)
+    //     if (res?.success) {
+    //       setText('')
+    //       //@ts-ignore
+    //       setMessages([...res.data])
+    //       setResult('')
+    //     } else {
+    //       //@ts-ignore
+    //       Alert.alert('Error', res?.msg)
+    //     }
+    //   })
+
+    // }
   }
 
   const speechErrorHandler = (e: any) => {
@@ -28,12 +74,12 @@ const Home = () => {
 
   const startRecording = async () => {
     setRecording(true)
-    try {
-      //@ts-ignore
-      await Voice.start('en-GB')
-    } catch (error) {
-      console.log('setRecording error', error)
-    }
+    // try {
+    //   //@ts-ignore
+    //   await Voice.start('en-GB')
+    // } catch (error) {
+    //   console.log('setRecording error', error)
+    // }
   }
   const stopRecording = async () => {
 
@@ -54,17 +100,18 @@ const Home = () => {
     setSpeaking(false)
   }
 
-  useEffect(() => {
-    // voice handler events
-    Voice.onSpeechStart = speechStartHandler
-    Voice.onSpeechEnd = speechEndHandler
-    Voice.onSpeechResults = speechResultsHandler
-    Voice.onSpeechError = speechErrorHandler
+  // useEffect(() => {
+  //   // voice handler events
+  //   Voice.onSpeechStart = speechStartHandler
+  //   Voice.onSpeechEnd = speechEndHandler
+  //   Voice.onSpeechResults = speechResultsHandler
+  //   Voice.onSpeechError = speechErrorHandler
 
-    return () => {
-      Voice.destroy().then(Voice.removeAllListeners)
-    }
-  }, [])
+  //   return () => {
+  //     Voice.destroy().then(Voice.removeAllListeners)
+  //   }
+  // }, [])
+
 
   return (
     <View className='flex-1 bg-white'>
@@ -139,24 +186,30 @@ const Home = () => {
             <Image source={require('../../assets/images/brainckt.png')} className='w-6 h-6' />
             {/* <Text className='text-gray-400 ml-2'>Type a message...</Text> */}
             <TextInput
-              // value={text}
-              onChange={() => { }}
+              value={text}
+              onChangeText={(text: string) => setText(text)}
               placeholder='Type a message...'
               className=' ml-2 w-5/6'
             />
           </View>
 
           {
-            recording ? (
-              // recording stop button
-              <TouchableOpacity onPress={stopRecording}>
-                <Image className='rounded-full h-16 w-16 mr-2' source={require('../../assets/images/voiceLoading.gif')}></Image>
+            text.length > 0 ? (
+              <TouchableOpacity onPress={speechResultsHandler}>
+                <Image className='rounded-full h-16 w-16 mr-2' source={require('../../assets/images/send2.png')}></Image>
               </TouchableOpacity>
             ) : (
-              // recording start button
-              <TouchableOpacity onPress={startRecording}>
-                <Image className='rounded-full h-16 w-16 mr-2' source={require('../../assets/images/recordingIcon.png')}></Image>
-              </TouchableOpacity>
+              recording ? (
+                // recording stop button
+                <TouchableOpacity onPress={stopRecording}>
+                  <Image className='rounded-full h-16 w-16 mr-2' source={require('../../assets/images/voiceLoading.gif')}></Image>
+                </TouchableOpacity>
+              ) : (
+                // recording start button
+                <TouchableOpacity onPress={startRecording}>
+                  <Image className='rounded-full h-16 w-16 mr-2' source={require('../../assets/images/recordingIcon.png')}></Image>
+                </TouchableOpacity>
+              )
             )
           }
 
