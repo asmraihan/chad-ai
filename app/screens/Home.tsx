@@ -1,11 +1,71 @@
-import { View, Text, Image, TouchableOpacity, ScrollView } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, Image, TouchableOpacity, ScrollView, TextInput } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Features from '../components/features'
 import { dummyMessages } from '../constants'
+import Voice from '@react-native-community/voice';
 const Home = () => {
   const [messages, setMessages] = useState(dummyMessages)
   const [recording, setRecording] = useState(false)
+  const [text, setText] = useState('asd')
+  const [speaking, setSpeaking] = useState(false)
+
+  const speechStartHandler = (e: any) => {
+    console.log('speech start handler')
+  }
+  const speechEndHandler = (e: any) => {
+    setRecording(false)
+    console.log('speech end handler')
+  }
+  const speechResultsHandler = (e: any) => {
+    setRecording(false)
+    console.log('speech result voice event', e)
+  }
+
+  const speechErrorHandler = (e: any) => {
+    console.log('speech error handler', e)
+  }
+
+  const startRecording = async () => {
+    setRecording(true)
+    try {
+      //@ts-ignore
+      await Voice.start('en-GB')
+    } catch (error) {
+      console.log('setRecording error', error)
+    }
+  }
+  const stopRecording = async () => {
+
+    try {
+      await Voice.stop()
+      setRecording(false)
+      // fetch from chatgpt
+    } catch (error) {
+      console.log('error', error)
+    }
+  }
+
+  const clearAll = () => {
+    setMessages([])
+  }
+
+  const stopSpeaking = () => {
+    setSpeaking(false)
+  }
+
+  useEffect(() => {
+    // voice handler events
+    Voice.onSpeechStart = speechStartHandler
+    Voice.onSpeechEnd = speechEndHandler
+    Voice.onSpeechResults = speechResultsHandler
+    Voice.onSpeechError = speechErrorHandler
+
+    return () => {
+      Voice.destroy().then(Voice.removeAllListeners)
+    }
+  }, [])
+
   return (
     <View className='flex-1 bg-white'>
       <SafeAreaView className='flex-1 flex mx-5'>
@@ -37,7 +97,7 @@ const Home = () => {
                           //text message
                           return (
 
-                            <View key={index} className='w-3/4 bg-neutral-300 rounded-xl p-3 rounded-tl-none'>
+                            <View key={index} className='w-3/4 bg-neutral-300 rounded-xl p-3 rounded-tl-none '>
                               <Text>{message.content}</Text>
                             </View>
                           )
@@ -65,33 +125,41 @@ const Home = () => {
         {/* clear,text,rec */}
 
         {/* rec */}
-        <View className='flex-row justify-center items-center space-x-2 mb-2'>
+        <View className='flex-row justify-center items-center space-x-2 mb-2 mt-auto'>
           {/* clear */}
-        {
+          {
             messages.length > 0 && (
-              <TouchableOpacity className='bg-neutral-400 rounded-2xl rounded-l-none px-2 py-3'>
-                <Text className='text-white font-semibold'>Clear</Text>
+              <TouchableOpacity onPress={clearAll} className='bg-white border-2 border-gray-400 rounded-3xl rounded-l-none px-3 py-3'>
+                <Text className='text-black font-semibold'>Clear</Text>
               </TouchableOpacity>
             )
           }
           {/* textinput */}
-          <View className='flex-row justify-center items-center bg-neutral-200 rounded-3xl p-3 w-3/4'>
+          <View className='flex-row  items-center bg-neutral-200 rounded-3xl pl-4 py-3 w-3/4'>
             <Image source={require('../../assets/images/brainckt.png')} className='w-6 h-6' />
-            <Text className='text-gray-400 ml-2'>Type a message</Text>
+            {/* <Text className='text-gray-400 ml-2'>Type a message...</Text> */}
+            <TextInput
+              // value={text}
+              onChange={() => { }}
+              placeholder='Type a message...'
+              className=' ml-2 w-5/6'
+            />
           </View>
 
           {
             recording ? (
-              <TouchableOpacity>
-                <Image className='rounded-full h-16 w-16' source={require('../../assets/images/voiceLoading.gif')}></Image>
+              // recording stop button
+              <TouchableOpacity onPress={stopRecording}>
+                <Image className='rounded-full h-16 w-16 mr-2' source={require('../../assets/images/voiceLoading.gif')}></Image>
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity>
-                <Image className='rounded-full h-16 w-16' source={require('../../assets/images/recordingIcon.png')}></Image>
+              // recording start button
+              <TouchableOpacity onPress={startRecording}>
+                <Image className='rounded-full h-16 w-16 mr-2' source={require('../../assets/images/recordingIcon.png')}></Image>
               </TouchableOpacity>
             )
           }
-         
+
         </View>
       </SafeAreaView>
     </View>
