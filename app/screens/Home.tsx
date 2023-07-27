@@ -141,7 +141,7 @@ const Home = () => {
         {
           messages.length > 0 ? (
             <View className='space-y-2 flex-1'>
-              <Text className='text-gray-700 font-semibold ml-1 text-lg'>GPT Turbo-3.5</Text>
+              <Text className='text-gray-700 font-semibold ml-1 text-xl my-2'>GPT Turbo-3.5</Text>
               <View className='h-5/6 bg-neutral-200 rounded-3xl p-4'>
                 <ScrollView
                  ref={ScrollViewRef}
