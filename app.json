@@ -2,12 +2,12 @@
   "expo": {
     "name": "Chad AI",
     "slug": "chad-ai",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/chad_icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/images/chad_icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -22,12 +22,18 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/images/chad_icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.asmraihan.chadai"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "19f91031-8d30-4172-83c8-0c16710ecf24"
+      }
     }
   }
 }

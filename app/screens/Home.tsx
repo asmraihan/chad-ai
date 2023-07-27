@@ -14,6 +14,7 @@ const Home = () => {
   const [text, setText] = useState('')
   const [speaking, setSpeaking] = useState(false)
   const [result, setResult] = useState('')
+  const [loading, setLoading] = useState(false)
   const ScrollViewRef = useRef()
 
   const speechStartHandler = (e: any) => {
@@ -34,10 +35,14 @@ const Home = () => {
       newMessages.push({ role: 'user', content: text.trim() })
       setMessages([...newMessages])
       updateScrollView()
+      setLoading(true)
+      setText('')
+
       apiCall(text.trim(), newMessages).then(res => {
         // console.log('you got data', res)
+        setLoading(false)
         if (res?.success) {
-          setText('')
+          // setText('')
           //@ts-ignore
           setMessages([...res.data])
           updateScrollView()
@@ -136,7 +141,7 @@ const Home = () => {
         {
           messages.length > 0 ? (
             <View className='space-y-2 flex-1'>
-              <Text className='text-gray-700 font-semibold ml-1 text-lg'>Assistant</Text>
+              <Text className='text-gray-700 font-semibold ml-1 text-lg'>GPT Turbo-3.5</Text>
               <View className='h-5/6 bg-neutral-200 rounded-3xl p-4'>
                 <ScrollView
                  ref={ScrollViewRef}
@@ -198,12 +203,13 @@ const Home = () => {
           }
           {/* textinput */}
           <View className='flex-row  items-center bg-neutral-200 rounded-3xl pl-4 py-3 w-3/4'>
-            <Image source={require('../../assets/images/brainckt.png')} className='w-6 h-6' />
+            <Image source={require('../../assets/images/brainckt.png')} className={`w-6 h-6 ${loading ? 'hidden' : ''}`} />
+         
             {/* <Text className='text-gray-400 ml-2'>Type a message...</Text> */}
             <TextInput
               value={text}
               onChangeText={(text: string) => setText(text)}
-              placeholder='Type a message...'
+              placeholder={`${loading ? 'Loading response...' : 'Type a message...'}`}
               className=' ml-2 w-5/6'
             />
           </View>
