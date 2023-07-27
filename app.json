@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "gitreactnative",
-    "slug": "gitreactnative",
+    "name": "Chad AI",
+    "slug": "chad-ai",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/images/chad_icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",

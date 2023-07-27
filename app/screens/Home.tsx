@@ -1,16 +1,21 @@
 import { View, Text, Image, TouchableOpacity, ScrollView, TextInput, Alert } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Features from '../components/features'
-import { dummyMessages } from '../constants'
+// import { dummyMessages } from '../constants'
 import Voice from '@react-native-community/voice';
 import { apiCall } from '../api/openAI'
+
+
+
 const Home = () => {
   const [messages, setMessages] = useState([])
   const [recording, setRecording] = useState(false)
   const [text, setText] = useState('')
   const [speaking, setSpeaking] = useState(false)
   const [result, setResult] = useState('')
+  const ScrollViewRef = useRef()
+
   const speechStartHandler = (e: any) => {
     console.log('speech start handler')
   }
@@ -28,13 +33,14 @@ const Home = () => {
       let newMessages = [...messages]
       newMessages.push({ role: 'user', content: text.trim() })
       setMessages([...newMessages])
-
+      updateScrollView()
       apiCall(text.trim(), newMessages).then(res => {
         // console.log('you got data', res)
         if (res?.success) {
           setText('')
           //@ts-ignore
           setMessages([...res.data])
+          updateScrollView()
           setResult('')
         } else {
           //@ts-ignore
@@ -44,6 +50,12 @@ const Home = () => {
 
     }
 
+  }
+
+  const updateScrollView = () => {
+    setTimeout(()=>{
+      ScrollViewRef?.current?.scrollToEnd({animated: true})
+    }, 200)
   }
 
   const fetchResponse = () => {
@@ -126,7 +138,10 @@ const Home = () => {
             <View className='space-y-2 flex-1'>
               <Text className='text-gray-700 font-semibold ml-1 text-lg'>Assistant</Text>
               <View className='h-5/6 bg-neutral-200 rounded-3xl p-4'>
-                <ScrollView bounces={false} className='space-y-4' showsVerticalScrollIndicator={false}>
+                <ScrollView
+                 ref={ScrollViewRef}
+                 bounces={false}
+                  className='space-y-4' showsVerticalScrollIndicator={false}>
                   {
                     messages.map((message, index) => {
                       if (message.role == 'assistant') {
@@ -145,7 +160,7 @@ const Home = () => {
                           return (
 
                             <View key={index} className='w-3/4 bg-neutral-300 rounded-xl p-3 rounded-tl-none '>
-                              <Text>{message.content}</Text>
+                              <Text className='font-medium'>{message.content}</Text>
                             </View>
                           )
                         }
@@ -154,7 +169,7 @@ const Home = () => {
                         return (
                           <View key={index} className='flex-row justify-end'>
                             <View className='w-3/4 bg-white rounded-xl p-3 rounded-tr-none'>
-                              <Text>{message.content}</Text>
+                              <Text className='font-medium'>{message.content}</Text>
                             </View>
                           </View>
                         )
